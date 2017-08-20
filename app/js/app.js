@@ -19,6 +19,7 @@
     },1000);
 */
 
+const Ex1 = (() => {
 
 const NOTES = {
 	'A5': 440,
@@ -47,9 +48,59 @@ beatDuration = tempo / 60;
 
 const melody = [
 	{
-		note: 'A5',
+		note: 'C5',
+		startTime: 0,
+		duration: 1,
+	},
+	{
+		note: 'D5',
 		startTime: 1,
-		duration: 2,
+		duration: 1,
+	},
+	{
+		note: 'G5',
+		startTime: 1,
+		duration: 1,
+	},
+	{
+		note: 'B5',
+		startTime: 1,
+		duration: 1,
+	},
+	{
+		note: 'E5',
+		startTime: 2,
+		duration: 1,
+	},
+	{
+		note: 'F5',
+		startTime: 3,
+		duration: 1,
+	},
+	{
+		note: 'G5',
+		startTime: 4,
+		duration: 1,
+	},
+	{
+		note: 'A6',
+		startTime: 5,
+		duration: 1,
+	},
+	{
+		note: 'B6',
+		startTime: 5,
+		duration: 1,
+	},
+	{
+		note: 'B6',
+		startTime: 6,
+		duration: 1,
+	},
+	{
+		note: 'C6',
+		startTime: 7,
+		duration: 1,
 	}
 ];
 
@@ -63,50 +114,13 @@ let playing = false,
 let notesToPlay = [];
 
 let gain = ac.createGain(),
-		reverb = ac.createConvolver(),
-		compressor = ac.createDynamicsCompressor();
+		compressor = ac.createDynamicsCompressor(),
+		reverb = ac.createConvolver();
 
-compressor.treshold.value = -50;
-gain.gain.value = 1;
-//compressor.connect(gain);
-
-const playLoop = () => {
-	let currentTime = (ac.currentTime - startTime) * beatDuration;
-	
-	for (let i = 0, len = notesToPlay.length; i < len; i++) {
-		let note = notesToPlay[i];
-		
-		if (!note.played && currentTime > note.startTime) {
-			note.played = true;
-			let osc = ac.createOscillator();
-			osc.type = 'square';
-			osc.frequency.value = NOTES[note.note];
-			osc.connect(compressor);
-			osc.start();
-			osc.stop(ac.currentTime + note.duration /	 beatDuration);
-		}
-	}
-
-	reqFrame = requestAnimationFrame(playLoop);
-}
-
-const playPause = () => {
-	if (!playing) {
-		playing = true;
-		startTime = ac.currentTime;
-		notesToPlay = notes.map((item) => {
-			item.played = false;
-			return item;
-		});
-		playLoop();
-	} else {
-		playing = false;
-		cancelAnimationFrame(reqFrame);
-	}
-	return {
-		playPause
-	}
-}
+gain.gain.value = .3;
+compressor.threshold.value = -30;
+compressor.connect(gain);
+gain.connect(destination);
 
 
 
@@ -144,8 +158,59 @@ function onMIDIMessage(message) {
     if (data[1]==21) {
     	gain.gain.value = data[2]/127
     }
-    if (data[1]==22)
-	    oscillator.frequency.value = data[2]*10;
 }
+
+
+const playLoop = () => {
+	let currentTime = (ac.currentTime - startTime) * beatDuration;
+	
+	for (let i = 0, len = notesToPlay.length; i < len; i++) {
+		let note = notesToPlay[i];
+		
+		if (!note.played && currentTime > note.startTime) {
+			note.played = true;
+			let osc = ac.createOscillator();
+			osc.frequency.value = NOTES[note.note];
+			osc.type = 'square'; 
+			osc.connect(compressor); 
+			osc.start();
+			osc.stop(ac.currentTime + note.duration /	 beatDuration);
+		}
+	}
+
+	reqFrame = requestAnimationFrame(playLoop);
+}
+
+const playPause = () => {
+	if (!playing) {
+		console.log('hi');
+		playing = true;
+		startTime = ac.currentTime;
+		notesToPlay = melody.map((item) => {
+			item.played = false;
+			return item;
+		});
+		playLoop();
+	} else {
+		playing = false;
+		cancelAnimationFrame(reqFrame);
+	}
+} 
+
+	return {
+		playPause
+	};
+
+})();
+
+
+
+const playButton = document.querySelector('.play');
+	playButton.addEventListener("click", function(){ 
+		Ex1.playPause();
+});
+
+
+
 
 
