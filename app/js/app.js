@@ -21,6 +21,45 @@
 
 const Ex1 = (() => {
 
+
+
+var midi, data;
+// request MIDI access
+if (navigator.requestMIDIAccess) {
+    navigator.requestMIDIAccess({
+        sysex: false
+    }).then(onMIDISuccess, onMIDIFailure);
+} else {
+    alert("No MIDI support in your browser.");
+}
+
+// midi functions
+function onMIDISuccess(midiAccess) {
+    // when we get a succesful response, run this code
+    midi = midiAccess; // this is our raw MIDI data, inputs, outputs, and sysex status
+
+    var inputs = midi.inputs.values();
+    // loop over all available inputs and listen for any MIDI input
+    for (var input = inputs.next(); input && !input.done; input = inputs.next()) {
+        // each time there is a midi message call the onMIDIMessage function
+        input.value.onmidimessage = onMIDIMessage;
+    }
+
+}
+
+function onMIDIFailure(error) {
+    // when we get a failed response, run this code
+    console.log("No access to MIDI devices or your browser doesn't support WebMIDI API. Please use WebMIDIAPIShim " + error);
+}
+
+function onMIDIMessage(message) {
+    data = message.data; // this gives us our [command/channel, note, velocity] data.
+    console.log(message);
+    if (data[1]==21) {
+    	gain.gain.value = data[2]/127
+    }
+}
+
 const NOTES = {
 	'A5': 440,
 	'A#5': 466.16,
@@ -43,7 +82,7 @@ const NOTES = {
 	'D#6': 1244.51,
 	'E6': 1318.51
 },
-tempo = 120,
+tempo = 240,
 beatDuration = tempo / 60;
 
 const melody = [
@@ -115,51 +154,61 @@ let notesToPlay = [];
 
 let gain = ac.createGain(),
 		compressor = ac.createDynamicsCompressor(),
-		reverb = ac.createConvolver();
+		analyser = ac.createAnalyser(),
+		drawVisual;
 
 gain.gain.value = .3;
 compressor.threshold.value = -30;
 compressor.connect(gain);
 gain.connect(destination);
 
+analyser.fftSize = 2048;
+var bufferLength = analyser.frequencyBinCount;
+var dataArray = new Uint8Array(bufferLength);
+analyser.getByteTimeDomainData(dataArray);
 
+// Get a canvas defined with ID "oscilloscope"
+var canvas = document.getElementById("oscilloscope");
+var canvasCtx = canvas.getContext("2d");
 
-var midi, data;
-// request MIDI access
-if (navigator.requestMIDIAccess) {
-    navigator.requestMIDIAccess({
-        sysex: false
-    }).then(onMIDISuccess, onMIDIFailure);
-} else {
-    alert("No MIDI support in your browser.");
-}
+// draw an oscilloscope of the current audio source
 
-// midi functions
-function onMIDISuccess(midiAccess) {
-    // when we get a succesful response, run this code
-    midi = midiAccess; // this is our raw MIDI data, inputs, outputs, and sysex status
+function draw() {
 
-    var inputs = midi.inputs.values();
-    // loop over all available inputs and listen for any MIDI input
-    for (var input = inputs.next(); input && !input.done; input = inputs.next()) {
-        // each time there is a midi message call the onMIDIMessage function
-        input.value.onmidimessage = onMIDIMessage;
+  drawVisual = requestAnimationFrame(draw);
+
+  analyser.getByteTimeDomainData(dataArray);
+
+  canvasCtx.fillStyle = 'rgb(200, 200, 200)';
+  canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+  canvasCtx.lineWidth = 2;
+  canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
+
+  canvasCtx.beginPath();
+
+  var sliceWidth = canvas.width * 1.0 / bufferLength;
+  var x = 0;
+
+  for (var i = 0; i < bufferLength; i++) {
+
+    var v = dataArray[i] / 128.0;
+    var y = v * canvas.height / 2;
+
+    if (i === 0) {
+      canvasCtx.moveTo(x, y);
+    } else {
+      canvasCtx.lineTo(x, y);
     }
-}
 
-function onMIDIFailure(error) {
-    // when we get a failed response, run this code
-    console.log("No access to MIDI devices or your browser doesn't support WebMIDI API. Please use WebMIDIAPIShim " + error);
-}
+    x += sliceWidth;
+  }
 
-function onMIDIMessage(message) {
-    data = message.data; // this gives us our [command/channel, note, velocity] data.
-    console.log('MIDI data', data); // MIDI data [144, 63, 73]
-    if (data[1]==21) {
-    	gain.gain.value = data[2]/127
-    }
-}
+  canvasCtx.lineTo(canvas.width, canvas.height / 2);
+  canvasCtx.stroke();
+};
 
+draw();
 
 const playLoop = () => {
 	let currentTime = (ac.currentTime - startTime) * beatDuration;
@@ -205,12 +254,50 @@ const playPause = () => {
 
 
 
+
 const playButton = document.querySelector('.play');
 	playButton.addEventListener("click", function(){ 
 		Ex1.playPause();
 });
 
 
+
+var midi, data;
+// request MIDI access
+if (navigator.requestMIDIAccess) {
+    navigator.requestMIDIAccess({
+        sysex: false
+    }).then(onMIDISuccess, onMIDIFailure);
+} else {
+    alert("No MIDI support in your browser.");
+}
+
+// midi functions
+function onMIDISuccess(midiAccess) {
+    // when we get a succesful response, run this code
+    midi = midiAccess; // this is our raw MIDI data, inputs, outputs, and sysex status
+
+    var inputs = midi.inputs.values();
+    // loop over all available inputs and listen for any MIDI input
+    for (var input = inputs.next(); input && !input.done; input = inputs.next()) {
+        // each time there is a midi message call the onMIDIMessage function
+        input.value.onmidimessage = onMIDIMessage;
+    }
+
+}
+
+function onMIDIFailure(error) {
+    // when we get a failed response, run this code
+    console.log("No access to MIDI devices or your browser doesn't support WebMIDI API. Please use WebMIDIAPIShim " + error);
+}
+
+function onMIDIMessage(message) {
+    data = message.data; // this gives us our [command/channel, note, velocity] data.
+    console.log(message);
+    if (data[1]==40) {
+			Ex1.playPause();    
+		}
+}
 
 
 
