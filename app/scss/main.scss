@@ -1,7 +1,265 @@
 @import "variables.scss";
 
-
 body {
-	background: $darkBlue;
+	margin: 0;
+	padding: 0;
+	height: 100vh;
+	overflow: hidden;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+.visual {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100vh;
+	position: relative;
+	z-index: 2;
+	i {
+		display: block;
+		width: 5vw;
+	}
+}
+
+.background {
+	position: fixed;
+	top: 0;
+	left: 0;
+	height: 100vh;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background: #000;
+	z-index: -1;
+		mix-blend-mode: screen;
+}
+
+.analyser {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100vh;
+	position: relative;
+	z-index: 2;
+	background: #333;
+	&--webaudioapi {
+		align-items: flex-end;
+		background: transparent;
+	}
+	i {
+		display: block;
+		width: 5vw;
+	}
+	h1 {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin: 0;
+		padding: 0;
+		span {
+			font-family: 'Arial black';
+			font-size: 90px;  
+			mix-blend-mode: exclusion;
+			color: white;
+		}
+	}
+}
+
+.camera {
+	position: fixed;
+	top: 0;
+	right: 0;
+	width: 640px;
+	height: 480px;
+	transform: rotate(180deg);
+	z-index:100;
+	&__vis {
+		width: 320px;
+		height: 240px;
+	}
+}
+
+.daftpunk {
+	height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	&__camera {
+		width: 640px;
+		height: 480px;
+		transform: rotate(180deg);
+	}
+}
+
+.video {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	background: url('/assets/img/vis.gif');
+	background-size: cover;
+	mix-blend-mode: lighten;
+	z-index: 1;
+	&__background {
+	   position: absolute;
+	   opacity: 0;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+	}
+}
+
+
+.bye {
+	background: #131c3a;
 	color: #fff;
+	width: 100%;
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	h1 {
+		margin: 0 0 20px;
+		font-size: 62px;			
+		font-family: 'Montserrat';
+	}
+}
+
+.oscillator {
+	&__range {
+		display: block;
+		width: 100%;
+	}
+}
+
+.audio__control {
+	display: block;
+	width: 100%;
+}
+
+path {
+	stroke-width: 16;
+    stroke: #000;
+    stroke-linecap: round;
+    fill: none;
+}
+
+.melody {
+	display: flex;
+	height: 100vh;
+	align-items: center;
+	justify-content: center;
+	background: tomato;
+	&__note {
+		font-family: 'Montserrat';
+		font-size: 20vw;
+	}
+}
+
+.midi { 
+	display: flex;
+	height: 100vh;
+	align-items: flex-end;
+	justify-content: center;
+	background: darkblue;
+	color: #fff;
+	padding-bottom: 10vw;
+	&__value {
+		font-size: 5vw;
+		font-family: 'Montserrat';
+		letter-spacing: 0.2vw;
+		position: relative;
+		z-index: 100;
+		padding: 10px;
+		background: rgba(0,0,0,0.4);
+	}
+	&__camera {
+		position: fixed;
+		top: 0;
+		right: 0;
+		width: 320px;
+		height: 240px;
+	}
+}
+
+.partners {
+	height: 100vh;
+	position: relative;
+	background: white;
+	&__container {
+		margin-top: 40px;
+		flex-grow: 0;
+	}
+
+	&__background {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		display: flex;
+		flex-wrap: wrap;
+		i {
+			display: block;
+			width: calc(100% / 8);
+			height: calc(100vh / 8);
+		}
+	}
+	&__cover {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 2;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-direction: column;
+    	mix-blend-mode: multiply;
+		h1 {
+			font-size: 60px;
+		}
+		h2, h1, h3, h4 {
+			margin: 0;
+			padding: 0;
+			font-family: 'Montserrat';
+			text-align: center;
+		}
+		h2 {
+			margin-bottom: 60px;
+		}
+		h4 {
+			margin-bottom: 20px;
+		}
+	}
+	&__logos {
+		display: flex;
+		align-items: center;
+		img {
+			mix-blend-mode: multiply;
+			display: block;
+			width: 100%;
+			max-width: 150px;
+			flex-grow: 0;
+			margin: 0 20px;
+			&:nth-child(2){
+				max-width: 250px;
+			}
+		}
+	}
 }

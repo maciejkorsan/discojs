@@ -11,6 +11,7 @@ var browserify = require('gulp-browserify');
 var uglify = require('gulp-uglify');
 var babel = require('gulp-babel');
 var eslint = require('gulp-eslint');
+var webserver = require('gulp-webserver');
 
 gulp.task('assets', function() {
   return gulp.src('./app/assets/**/*')
@@ -18,12 +19,8 @@ gulp.task('assets', function() {
 });
 
 gulp.task('scripts', function() {
-    gulp.src('app/js/app.js')
+    gulp.src('app/js/*.js')
         .pipe(eslint())
-        .on('error', function(err){
-            browserSync.notify(err.message, 3000);
-            this.emit('end');
-        })
         .pipe(babel({
             presets: ['es2015']
         }))
@@ -61,3 +58,12 @@ gulp.task('serve', ['sass','html','scripts','assets'], function() {
 });
 
 gulp.task('default', ['serve']);
+gulp.task('showtime', function(){
+    gulp.src('dist')
+    .pipe(webserver({
+      livereload: false,
+      directoryListing: true,
+      open: false,
+      port: 3002
+    }));
+});
